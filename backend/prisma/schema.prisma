@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  RECRUITER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum VacancyStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SCREENING
+  INTERVIEW_SCHEDULED
+  INTERVIEW_COMPLETED
+  SELECTED
+  REJECTED
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         UserRole   @default(RECRUITER)
+  status       UserStatus @default(ACTIVE)
+
+  createdVacancies Vacancy[]       @relation("CreatedVacancies")
+  interviews       Interview[]     @relation("Interviewers")
+  statusChanges    StatusHistory[] @relation("StatusChangedBy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Vacancy {
+  id             String        @id @default(uuid())
+  title          String
+  department     String?
+  description    String
+  requiredSkills String?
+  employmentType String?
+  deadline       DateTime?
+  status         VacancyStatus @default(DRAFT)
+
+  createdBy String
+  creator   User   @relation("CreatedVacancies", fields: [createdBy], references: [id])
+
+  applications Application[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Candidate {
+  id         String  @id @default(uuid())
+  fullName   String
+  email      String  @unique
+  phone      String?
+  location   String?
+  education  String?
+  experience String?
+  skills     String?
+
+  applications Application[]
+  documents    Document[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Application {
+  id          String            @id @default(uuid())
+  candidateId String
+  vacancyId   String
+  status      ApplicationStatus @default(APPLIED)
+
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+  vacancy   Vacancy   @relation(fields: [vacancyId], references: [id])
+
+  interviews    Interview[]
+  documents     Document[]
+  statusHistory StatusHistory[]
+
+  appliedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Interview {
+  id             String          @id @default(uuid())
+  applicationId  String
+  interviewerId  String
+  dateTime       DateTime
+  type           String
+  locationOrLink String?
+  status         InterviewStatus @default(SCHEDULED)
+  notes          String?
+  feedback       String?
+
+  application Application @relation(fields: [applicationId], references: [id])
+  interviewer User        @relation("Interviewers", fields: [interviewerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Document {
+  id            String  @id @default(uuid())
+  candidateId   String
+  applicationId String?
+  fileName      String
+  fileUrl       String
+  type          String
+
+  candidate   Candidate    @relation(fields: [candidateId], references: [id])
+  application Application? @relation(fields: [applicationId], references: [id])
+
+  uploadedAt DateTime @default(now())
+}
+
+model StatusHistory {
+  id            String             @id @default(uuid())
+  applicationId String
+  oldStatus     ApplicationStatus?
+  newStatus     ApplicationStatus
+  changedBy     String
+  note          String?
+
+  application Application @relation(fields: [applicationId], references: [id])
+  user        User        @relation("StatusChangedBy", fields: [changedBy], references: [id])
+
+  changedAt DateTime @default(now())
+}
