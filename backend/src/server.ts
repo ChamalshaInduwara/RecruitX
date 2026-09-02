@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import prisma from "./config/prisma";
 
 dotenv.config();
 
@@ -15,6 +16,25 @@ app.get("/api/health", (req, res) => {
     status: "ok",
     message: "RecruitX API is running",
   });
+});
+
+app.get("/api/db-health", async (req, res) => {
+  try {
+    const userCount = await prisma.user.count();
+
+    res.status(200).json({
+      status: "ok",
+      message: "RecruitX database is connected",
+      userCount,
+    });
+  } catch (error) {
+    console.error("Database connection error:", error);
+
+    res.status(500).json({
+      status: "error",
+      message: "Database connection failed",
+    });
+  }
 });
 
 app.listen(PORT, () => {
