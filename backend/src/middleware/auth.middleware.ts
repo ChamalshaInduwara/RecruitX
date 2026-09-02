@@ -44,3 +44,25 @@ export const authenticate = (
     });
   }
 };
+
+export const authorizeRoles = (...allowedRoles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const role = res.locals.auth?.role;
+
+    if (!role) {
+      return res.status(401).json({
+        status: "error",
+        message: "Authentication required",
+      });
+    }
+
+    if (!allowedRoles.includes(role)) {
+      return res.status(403).json({
+        status: "error",
+        message: "You do not have permission to perform this action",
+      });
+    }
+
+    next();
+  };
+};
