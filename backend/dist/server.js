@@ -10,6 +10,7 @@ const prisma_1 = __importDefault(require("./config/prisma"));
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const vacancy_routes_1 = __importDefault(require("./routes/vacancy.routes"));
 const candidate_routes_1 = __importDefault(require("./routes/candidate.routes"));
+const application_routes_1 = __importDefault(require("./routes/application.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +19,7 @@ app.use(express_1.default.json());
 app.use("/api/auth", auth_routes_1.default);
 app.use("/api/vacancies", vacancy_routes_1.default);
 app.use("/api/candidates", candidate_routes_1.default);
+app.use("/api/applications", application_routes_1.default);
 app.get("/api/health", (req, res) => {
     res.status(200).json({
         status: "ok",
