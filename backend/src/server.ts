@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import prisma from "./config/prisma";
 import authRoutes from "./routes/auth.routes";
 import vacancyRoutes from "./routes/vacancy.routes";
+import candidateRoutes from "./routes/candidate.routes";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/vacancies", vacancyRoutes);
+app.use("/api/candidates", candidateRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({
