@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import prisma from "./config/prisma";
 import authRoutes from "./routes/auth.routes";
+import vacancyRoutes from "./routes/vacancy.routes";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/vacancies", vacancyRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({
