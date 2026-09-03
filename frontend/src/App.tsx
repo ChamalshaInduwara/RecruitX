@@ -1,16 +1,45 @@
+import {
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
+
+import LoginPage from "./pages/auth/LoginPage";
+import DashboardPage from "./pages/dashboard/DashboardPage";
+
 function App() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100">
-      <div className="rounded-xl bg-white p-8 shadow-md">
-        <h1 className="text-3xl font-bold text-slate-900">
-          RecruitX
-        </h1>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <Navigate
+            to="/login"
+            replace
+          />
+        }
+      />
 
-        <p className="mt-2 text-slate-600">
-          Recruitment Management System
-        </p>
-      </div>
-    </div>
+      <Route
+        path="/login"
+        element={<LoginPage />}
+      />
+
+      <Route
+        path="/dashboard"
+        element={<DashboardPage />}
+      />
+
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to="/login"
+            replace
+          />
+        }
+      />
+    </Routes>
   );
 }
 
