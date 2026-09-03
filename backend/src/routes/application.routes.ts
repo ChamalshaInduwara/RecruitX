@@ -12,6 +12,10 @@ import {
   authorizeRoles,
 } from "../middleware/auth.middleware";
 
+import {
+  scheduleInterview,
+} from "../controllers/interview.controller";
+
 const router = Router();
 
 router.get(
@@ -26,6 +30,13 @@ router.post(
   authenticate,
   authorizeRoles("ADMIN", "RECRUITER"),
   createApplication
+);
+
+router.post(
+  "/:id/interviews",
+  authenticate,
+  authorizeRoles("ADMIN", "RECRUITER"),
+  scheduleInterview
 );
 
 router.get(

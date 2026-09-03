@@ -46,9 +46,10 @@ const allowedTransitions: Record<string, string[]> = {
   ],
 
   INTERVIEW_COMPLETED: [
-    "SELECTED",
-    "REJECTED",
-  ],
+  "INTERVIEW_SCHEDULED",
+  "SELECTED",
+  "REJECTED",
+],
 
   SELECTED: [],
   REJECTED: [],

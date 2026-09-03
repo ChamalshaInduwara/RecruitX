@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.routes";
 import vacancyRoutes from "./routes/vacancy.routes";
 import candidateRoutes from "./routes/candidate.routes";
 import applicationRoutes from "./routes/application.routes";
+import interviewRoutes from "./routes/interview.routes";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/vacancies", vacancyRoutes);
 app.use("/api/candidates", candidateRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/interviews", interviewRoutes);
 
 
 app.get("/api/health", (req, res) => {
