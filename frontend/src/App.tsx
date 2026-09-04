@@ -4,7 +4,10 @@ import {
   Routes,
 } from "react-router-dom";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import LoginPage from "./pages/auth/LoginPage";
+
 import DashboardPage from "./pages/dashboard/DashboardPage";
 
 function App() {
@@ -14,7 +17,7 @@ function App() {
         path="/"
         element={
           <Navigate
-            to="/login"
+            to="/dashboard"
             replace
           />
         }
@@ -27,14 +30,18 @@ function App() {
 
       <Route
         path="/dashboard"
-        element={<DashboardPage />}
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="*"
         element={
           <Navigate
-            to="/login"
+            to="/dashboard"
             replace
           />
         }
