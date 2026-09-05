@@ -1,15 +1,15 @@
-function DashboardPage() {
+function VacanciesPage() {
   return (
     <div>
       <h1 className="text-2xl font-semibold text-slate-900">
-        Dashboard
+        Vacancies
       </h1>
 
       <p className="mt-1 text-sm text-slate-500">
-        Overview of your recruitment activity.
+        Manage job and internship vacancies.
       </p>
     </div>
   );
 }
 
-export default DashboardPage;
+export default VacanciesPage;

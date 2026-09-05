@@ -1,15 +1,15 @@
-function DashboardPage() {
+function ApplicationsPage() {
   return (
     <div>
       <h1 className="text-2xl font-semibold text-slate-900">
-        Dashboard
+        Applications
       </h1>
 
       <p className="mt-1 text-sm text-slate-500">
-        Overview of your recruitment activity.
+        Track candidates through the recruitment pipeline.
       </p>
     </div>
   );
 }
 
-export default DashboardPage;
+export default ApplicationsPage;
