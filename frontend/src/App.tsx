@@ -20,6 +20,8 @@ import ApplicationsPage from "./pages/applications/ApplicationsPage";
 
 import InterviewsPage from "./pages/interviews/InterviewsPage";
 
+import VacancyDetailsPage from "./pages/vacancies/VacancyDetailsPage";
+
 function App() {
   return (
     <Routes>
@@ -64,6 +66,16 @@ function App() {
           element={<InterviewsPage />}
         />
       </Route>
+
+      <Route
+  path="/vacancies"
+  element={<VacanciesPage />}
+/>
+
+<Route
+  path="/vacancies/:id"
+  element={<VacancyDetailsPage />}
+/>
 
       {/* Redirects */}
 
