@@ -6,6 +6,58 @@ export type ApplicationStatus =
   | "SELECTED"
   | "REJECTED";
 
+export type InterviewStatus =
+  | "SCHEDULED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "RESCHEDULED";
+
+export interface ApplicationInterview {
+  id: string;
+  applicationId: string;
+  interviewerId: string;
+  dateTime: string;
+  type: string;
+  locationOrLink: string | null;
+  status: InterviewStatus;
+  notes: string | null;
+  feedback: string | null;
+  createdAt: string;
+  updatedAt: string;
+
+  interviewer: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export interface StatusHistoryItem {
+  id: string;
+  applicationId: string;
+  oldStatus: ApplicationStatus | null;
+  newStatus: ApplicationStatus;
+  changedBy: string;
+  note: string | null;
+  changedAt: string;
+
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export interface ApplicationDocument {
+  id: string;
+  candidateId: string;
+  applicationId: string | null;
+  fileName: string;
+  fileUrl: string;
+  type: string;
+  uploadedAt: string;
+}
+
 export interface Application {
   id: string;
   candidateId: string;
@@ -19,6 +71,9 @@ export interface Application {
     fullName: string;
     email: string;
     phone?: string | null;
+    location?: string | null;
+    education?: string | null;
+    experience?: string | null;
     skills?: string | null;
   };
 
@@ -35,10 +90,26 @@ export interface Application {
   };
 }
 
+export interface ApplicationDetails
+  extends Application {
+  candidate: Application["candidate"] & {
+    documents?: ApplicationDocument[];
+  };
+
+  interviews: ApplicationInterview[];
+
+  statusHistory: StatusHistoryItem[];
+}
+
 export interface ApplicationsResponse {
   status: "success";
   count: number;
   applications: Application[];
+}
+
+export interface ApplicationResponse {
+  status: "success";
+  application: ApplicationDetails;
 }
 
 export interface CreateApplicationResponse {
