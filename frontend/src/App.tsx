@@ -24,6 +24,8 @@ import VacancyDetailsPage from "./pages/vacancies/VacancyDetailsPage";
 
 import CandidateDetailsPage from "./pages/candidates/CandidateDetailsPage";
 
+import ApplicationDetailsPage from "./pages/applications/ApplicationDetailsPage";
+
 function App() {
   return (
     <Routes>
@@ -59,13 +61,18 @@ function App() {
         />
 
         <Route
-  path="/candidates/:id"
-  element={<CandidateDetailsPage />}
-/>
+        path="/candidates/:id"
+        element={<CandidateDetailsPage />}
+        />
 
         <Route
           path="/applications"
           element={<ApplicationsPage />}
+        />
+
+        <Route
+        path="/applications/:id"
+        element={<ApplicationDetailsPage />}
         />
 
         <Route
