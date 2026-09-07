@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import fs from "fs";
 import prisma from "../config/prisma";
+import path from "path";
+import { existsSync } from "fs";
 
 /*
 |--------------------------------------------------------------------------
@@ -213,6 +215,79 @@ export const getCandidateDocuments = async (
       status: "error",
       message:
         "Unable to retrieve documents",
+    });
+  }
+};
+/*
+|--------------------------------------------------------------------------
+| View / Download Protected Document
+|--------------------------------------------------------------------------
+| GET /api/documents/:id/download
+|--------------------------------------------------------------------------
+*/
+
+export const downloadDocument = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  try {
+    const { id } = req.params;
+
+    const document =
+      await prisma.document.findUnique({
+        where: {
+          id,
+        },
+      });
+
+    if (!document) {
+      return res.status(404).json({
+        status: "error",
+        message: "Document not found",
+      });
+    }
+
+    const fileName = path.basename(
+      document.fileUrl
+    );
+
+    const filePath = path.join(
+      process.cwd(),
+      "uploads",
+      "documents",
+      fileName
+    );
+
+    if (!existsSync(filePath)) {
+      return res.status(404).json({
+        status: "error",
+        message:
+          "Document file not found",
+      });
+    }
+
+    const safeOriginalName =
+      document.fileName.replace(
+        /["\r\n]/g,
+        ""
+      );
+
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${safeOriginalName}"`
+    );
+
+    res.sendFile(filePath);
+  } catch (error) {
+    console.error(
+      "Download document error:",
+      error
+    );
+
+    return res.status(500).json({
+      status: "error",
+      message:
+        "Unable to retrieve document",
     });
   }
 };
