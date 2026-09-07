@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  UserCog,
   Users,
   X,
 } from "lucide-react";
@@ -20,6 +21,8 @@ import {
 import {
   useAuth,
 } from "../context/AuthContext";
+
+
 
 const navigationItems = [
   {
@@ -58,6 +61,18 @@ function MainLayout() {
     logout,
   } = useAuth();
 
+  const visibleNavigationItems =
+  user?.role === "ADMIN"
+    ? [
+        ...navigationItems,
+        {
+          name: "Users",
+          path: "/users",
+          icon: UserCog,
+        },
+      ]
+    : navigationItems;
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -87,7 +102,7 @@ function MainLayout() {
       {/* Navigation */}
 
       <nav className="flex-1 space-y-1 px-3 py-5">
-        {navigationItems.map((item) => {
+        {visibleNavigationItems.map((item) => {
           const Icon = item.icon;
 
           return (

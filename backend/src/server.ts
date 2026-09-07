@@ -9,6 +9,7 @@ import applicationRoutes from "./routes/application.routes";
 import interviewRoutes from "./routes/interview.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
 import documentRoutes from "./routes/document.routes";
+import userRoutes from "./routes/user.routes";
 
 dotenv.config();
 
@@ -24,11 +25,8 @@ app.use("/api/candidates", candidateRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use(
-  "/api/documents",
-  documentRoutes
-);
-
+app.use("/api/documents",documentRoutes);
+app.use("/api/users",userRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({

@@ -26,6 +26,10 @@ import CandidateDetailsPage from "./pages/candidates/CandidateDetailsPage";
 
 import ApplicationDetailsPage from "./pages/applications/ApplicationDetailsPage";
 
+import AdminRoute from "./components/AdminRoute";
+
+import UsersPage from "./pages/users/UsersPage";
+
 function App() {
   return (
     <Routes>
@@ -89,6 +93,15 @@ function App() {
 <Route
   path="/vacancies/:id"
   element={<VacancyDetailsPage />}
+/>
+
+<Route
+  path="/users"
+  element={
+    <AdminRoute>
+      <UsersPage />
+    </AdminRoute>
+  }
 />
 
       {/* Redirects */}
