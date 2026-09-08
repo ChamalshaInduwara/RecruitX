@@ -4,3 +4,5 @@ dist/
 .env.*
 !.env.example
 backend/uploads/
+# Logs
+*.log
