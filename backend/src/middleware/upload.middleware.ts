@@ -1,59 +1,8 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
-import crypto from "crypto";
 
 /*
 |--------------------------------------------------------------------------
-| Upload Directory
-|--------------------------------------------------------------------------
-*/
-
-const uploadDirectory = path.join(
-  process.cwd(),
-  "uploads",
-  "documents"
-);
-
-if (!fs.existsSync(uploadDirectory)) {
-  fs.mkdirSync(uploadDirectory, {
-    recursive: true,
-  });
-}
-
-/*
-|--------------------------------------------------------------------------
-| Storage Configuration
-|--------------------------------------------------------------------------
-*/
-
-const storage = multer.diskStorage({
-  destination: (
-    req,
-    file,
-    callback
-  ) => {
-    callback(null, uploadDirectory);
-  },
-
-  filename: (
-    req,
-    file,
-    callback
-  ) => {
-    const extension = path.extname(
-      file.originalname
-    );
-
-    const uniqueName = `${Date.now()}-${crypto.randomUUID()}${extension}`;
-
-    callback(null, uniqueName);
-  },
-});
-
-/*
-|--------------------------------------------------------------------------
-| Allowed File Types
+| Allowed Document Types
 |--------------------------------------------------------------------------
 */
 
@@ -63,27 +12,21 @@ const allowedMimeTypes = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
 
-const fileFilter: multer.Options["fileFilter"] = (
-  req,
-  file,
-  callback
-) => {
-  if (
-    allowedMimeTypes.includes(file.mimetype)
-  ) {
-    callback(null, true);
-  } else {
-    callback(
-      new Error(
-        "Only PDF, DOC and DOCX files are allowed"
-      )
-    );
-  }
-};
+/*
+|--------------------------------------------------------------------------
+| Memory Storage
+|--------------------------------------------------------------------------
+|
+| Files stay temporarily in memory.
+| They are then uploaded directly to Supabase Storage.
+|--------------------------------------------------------------------------
+*/
+
+const storage = multer.memoryStorage();
 
 /*
 |--------------------------------------------------------------------------
-| Multer Configuration
+| Upload Middleware
 |--------------------------------------------------------------------------
 */
 
@@ -94,5 +37,23 @@ export const uploadDocument = multer({
     fileSize: 5 * 1024 * 1024,
   },
 
-  fileFilter,
+  fileFilter: (
+    req,
+    file,
+    callback
+  ) => {
+    if (
+      allowedMimeTypes.includes(
+        file.mimetype
+      )
+    ) {
+      callback(null, true);
+    } else {
+      callback(
+        new Error(
+          "Only PDF, DOC and DOCX files are allowed"
+        )
+      );
+    }
+  },
 });
