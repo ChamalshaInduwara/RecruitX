@@ -12,17 +12,9 @@ import {
   X,
 } from "lucide-react";
 
-import {
-  NavLink,
-  Outlet,
-  useNavigate,
-} from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
-import {
-  useAuth,
-} from "../context/AuthContext";
-
-
+import { useAuth } from "../context/AuthContext";
 
 const navigationItems = [
   {
@@ -53,25 +45,21 @@ const navigationItems = [
 ];
 
 function MainLayout() {
-  const [sidebarOpen, setSidebarOpen] =
-    useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const {
-    user,
-    logout,
-  } = useAuth();
+  const { user, logout } = useAuth();
 
   const visibleNavigationItems =
-  user?.role === "ADMIN"
-    ? [
-        ...navigationItems,
-        {
-          name: "Users",
-          path: "/users",
-          icon: UserCog,
-        },
-      ]
-    : navigationItems;
+    user?.role === "ADMIN"
+      ? [
+          ...navigationItems,
+          {
+            name: "Users",
+            path: "/users",
+            icon: UserCog,
+          },
+        ]
+      : navigationItems;
 
   const navigate = useNavigate();
 
@@ -89,13 +77,9 @@ function MainLayout() {
 
       <div className="flex h-16 items-center border-b border-slate-800 px-6">
         <div>
-          <h1 className="text-xl font-bold text-white">
-            RecruitX
-          </h1>
+          <h1 className="text-xl font-bold text-white">RecruitX</h1>
 
-          <p className="text-xs text-slate-400">
-            Recruitment System
-          </p>
+          <p className="text-xs text-slate-400">Recruitment System</p>
         </div>
       </div>
 
@@ -109,9 +93,7 @@ function MainLayout() {
             <NavLink
               key={item.path}
               to={item.path}
-              onClick={() =>
-                setSidebarOpen(false)
-              }
+              onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 [
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
@@ -123,9 +105,7 @@ function MainLayout() {
             >
               <Icon size={19} />
 
-              <span>
-                {item.name}
-              </span>
+              <span>{item.name}</span>
             </NavLink>
           );
         })}
@@ -139,9 +119,7 @@ function MainLayout() {
             {user?.name}
           </p>
 
-          <p className="truncate text-xs text-slate-400">
-            {user?.email}
-          </p>
+          <p className="truncate text-xs text-slate-400">{user?.email}</p>
         </div>
 
         <button
@@ -150,7 +128,6 @@ function MainLayout() {
           className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
         >
           <LogOut size={17} />
-
           Logout
         </button>
       </div>
@@ -170,9 +147,7 @@ function MainLayout() {
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/40 lg:hidden"
-          onClick={() =>
-            setSidebarOpen(false)
-          }
+          onClick={() => setSidebarOpen(false)}
         />
       )}
 
@@ -181,17 +156,13 @@ function MainLayout() {
       <aside
         className={[
           "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-slate-950 transition-transform duration-200 lg:hidden",
-          sidebarOpen
-            ? "translate-x-0"
-            : "-translate-x-full",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
         <div className="absolute right-3 top-4">
           <button
             type="button"
-            onClick={() =>
-              setSidebarOpen(false)
-            }
+            onClick={() => setSidebarOpen(false)}
             className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white"
             aria-label="Close menu"
           >
@@ -204,16 +175,14 @@ function MainLayout() {
 
       {/* Main Area */}
 
-      <div className="lg:pl-64">
+      <div className="min-w-0 lg:pl-64">
         {/* Header */}
 
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() =>
-                setSidebarOpen(true)
-              }
+              onClick={() => setSidebarOpen(true)}
               className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
               aria-label="Open menu"
             >
@@ -231,20 +200,14 @@ function MainLayout() {
             {/* User Avatar */}
 
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
-              {user?.name
-                ?.charAt(0)
-                .toUpperCase()}
+              {user?.name?.charAt(0).toUpperCase()}
             </div>
 
             <div className="hidden sm:block">
-              <p className="text-sm font-medium text-slate-800">
-                {user?.name}
-              </p>
+              <p className="text-sm font-medium text-slate-800">{user?.name}</p>
 
               <p className="text-xs text-slate-500">
-                {user?.role === "ADMIN"
-                  ? "Administrator"
-                  : "Recruiter"}
+                {user?.role === "ADMIN" ? "Administrator" : "Recruiter"}
               </p>
             </div>
           </div>
@@ -252,7 +215,7 @@ function MainLayout() {
 
         {/* Page Content */}
 
-        <main className="p-4 sm:p-6 lg:p-8">
+        <main className="min-w-0 p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>

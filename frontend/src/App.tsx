@@ -1,8 +1,4 @@
-import {
-  Navigate,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -35,10 +31,7 @@ function App() {
     <Routes>
       {/* Public */}
 
-      <Route
-        path="/login"
-        element={<LoginPage />}
-      />
+      <Route path="/login" element={<LoginPage />} />
 
       {/* Protected Application */}
 
@@ -49,82 +42,37 @@ function App() {
           </ProtectedRoute>
         }
       >
-        <Route
-          path="/dashboard"
-          element={<DashboardPage />}
-        />
+        <Route path="/dashboard" element={<DashboardPage />} />
+
+        <Route path="/vacancies" element={<VacanciesPage />} />
+
+        <Route path="/candidates" element={<CandidatesPage />} />
+
+        <Route path="/candidates/:id" element={<CandidateDetailsPage />} />
+
+        <Route path="/applications" element={<ApplicationsPage />} />
+
+        <Route path="/applications/:id" element={<ApplicationDetailsPage />} />
+
+        <Route path="/interviews" element={<InterviewsPage />} />
+
+        <Route path="/vacancies/:id" element={<VacancyDetailsPage />} />
 
         <Route
-          path="/vacancies"
-          element={<VacanciesPage />}
-        />
-
-        <Route
-          path="/candidates"
-          element={<CandidatesPage />}
-        />
-
-        <Route
-        path="/candidates/:id"
-        element={<CandidateDetailsPage />}
-        />
-
-        <Route
-          path="/applications"
-          element={<ApplicationsPage />}
-        />
-
-        <Route
-        path="/applications/:id"
-        element={<ApplicationDetailsPage />}
-        />
-
-        <Route
-          path="/interviews"
-          element={<InterviewsPage />}
+          path="/users"
+          element={
+            <AdminRoute>
+              <UsersPage />
+            </AdminRoute>
+          }
         />
       </Route>
 
-      <Route
-  path="/vacancies"
-  element={<VacanciesPage />}
-/>
-
-<Route
-  path="/vacancies/:id"
-  element={<VacancyDetailsPage />}
-/>
-
-<Route
-  path="/users"
-  element={
-    <AdminRoute>
-      <UsersPage />
-    </AdminRoute>
-  }
-/>
-
       {/* Redirects */}
 
-      <Route
-        path="/"
-        element={
-          <Navigate
-            to="/dashboard"
-            replace
-          />
-        }
-      />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-      <Route
-        path="*"
-        element={
-          <Navigate
-            to="/dashboard"
-            replace
-          />
-        }
-      />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

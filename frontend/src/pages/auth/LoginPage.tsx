@@ -1,39 +1,23 @@
-import {
-  type FormEvent,
-  useState,
-} from "react";
+import { type FormEvent, useState } from "react";
 
-import {
-  Navigate,
-  useNavigate,
-} from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import axios from "axios";
 
-import {
-  useAuth,
-} from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 function LoginPage() {
   const navigate = useNavigate();
 
-  const {
-    user,
-    loading: authLoading,
-    login,
-  } = useAuth();
+  const { user, loading: authLoading, login } = useAuth();
 
-  const [email, setEmail] =
-    useState("");
+  const [email, setEmail] = useState("");
 
-  const [password, setPassword] =
-    useState("");
+  const [password, setPassword] = useState("");
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
   /*
   |--------------------------------------------------------------------------
@@ -44,20 +28,13 @@ function LoginPage() {
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-100">
-        <p className="text-sm text-slate-500">
-          Loading RecruitX...
-        </p>
+        <p className="text-sm text-slate-500">Loading RecruitX...</p>
       </div>
     );
   }
 
   if (user) {
-    return (
-      <Navigate
-        to="/dashboard"
-        replace
-      />
-    );
+    return <Navigate to="/dashboard" replace />;
   }
 
   /*
@@ -66,39 +43,23 @@ function LoginPage() {
   |--------------------------------------------------------------------------
   */
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setError("");
     setLoading(true);
 
     try {
-      await login(
-        email,
-        password
-      );
+      await login(email, password);
 
-      navigate(
-        "/dashboard",
-        {
-          replace: true,
-        }
-      );
+      navigate("/dashboard", {
+        replace: true,
+      });
     } catch (error) {
-      if (
-        axios.isAxiosError(error)
-      ) {
-        setError(
-          error.response?.data
-            ?.message ||
-            "Unable to log in"
-        );
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.message || "Unable to log in");
       } else {
-        setError(
-          "Unable to log in"
-        );
+        setError("Unable to log in");
       }
     } finally {
       setLoading(false);
@@ -107,15 +68,12 @@ function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
+      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-lg sm:p-8">
         <div className="mb-8 text-center">
-          <div className="mb-3 text-3xl font-bold text-slate-900">
-            RecruitX
-          </div>
+          <div className="mb-3 text-3xl font-bold text-slate-900">RecruitX</div>
 
           <p className="text-sm text-slate-500">
-            Recruitment & Internship
-            Management System
+            Recruitment & Internship Management System
           </p>
         </div>
 
@@ -125,8 +83,7 @@ function LoginPage() {
           </h1>
 
           <p className="mt-1 text-sm text-slate-500">
-            Sign in to continue to
-            RecruitX.
+            Sign in to continue to RecruitX.
           </p>
         </div>
 
@@ -136,10 +93,7 @@ function LoginPage() {
           </div>
         )}
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5"
-        >
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label
               htmlFor="email"
@@ -152,11 +106,7 @@ function LoginPage() {
               id="email"
               type="email"
               value={email}
-              onChange={(event) =>
-                setEmail(
-                  event.target.value
-                )
-              }
+              onChange={(event) => setEmail(event.target.value)}
               placeholder="admin@recruitx.com"
               required
               autoComplete="email"
@@ -176,11 +126,7 @@ function LoginPage() {
               id="password"
               type="password"
               value={password}
-              onChange={(event) =>
-                setPassword(
-                  event.target.value
-                )
-              }
+              onChange={(event) => setPassword(event.target.value)}
               placeholder="Enter your password"
               required
               autoComplete="current-password"
@@ -193,9 +139,7 @@ function LoginPage() {
             disabled={loading}
             className="w-full rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading
-              ? "Signing in..."
-              : "Sign in"}
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
