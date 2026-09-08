@@ -106,6 +106,7 @@ model Application {
 
   appliedAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  @@unique([candidateId, vacancyId])
 }
 
 model Interview {

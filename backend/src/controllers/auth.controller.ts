@@ -61,17 +61,21 @@ export const login = async (req: Request, res: Response) => {
       throw new Error("JWT_SECRET is not configured");
     }
 
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        role: user.role,
-      },
-      jwtSecret,
-      {
-        expiresIn: "1d",
-      }
-    );
+    const expiresIn =
+  process.env.JWT_EXPIRES_IN ||
+  "1d";
 
+const token = jwt.sign(
+  {
+    userId: user.id,
+    role: user.role,
+  },
+  jwtSecret,
+  {
+    expiresIn:
+      expiresIn as jwt.SignOptions["expiresIn"],
+  }
+);
     return res.status(200).json({
       status: "success",
       message: "Login successful",

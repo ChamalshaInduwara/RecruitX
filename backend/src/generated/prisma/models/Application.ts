@@ -213,6 +213,7 @@ export type ApplicationOrderByWithRelationInput = {
 
 export type ApplicationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  candidateId_vacancyId?: Prisma.ApplicationCandidateIdVacancyIdCompoundUniqueInput
   AND?: Prisma.ApplicationWhereInput | Prisma.ApplicationWhereInput[]
   OR?: Prisma.ApplicationWhereInput[]
   NOT?: Prisma.ApplicationWhereInput | Prisma.ApplicationWhereInput[]
@@ -226,7 +227,7 @@ export type ApplicationWhereUniqueInput = Prisma.AtLeast<{
   interviews?: Prisma.InterviewListRelationFilter
   documents?: Prisma.DocumentListRelationFilter
   statusHistory?: Prisma.StatusHistoryListRelationFilter
-}, "id">
+}, "id" | "candidateId_vacancyId">
 
 export type ApplicationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -333,6 +334,11 @@ export type ApplicationListRelationFilter = {
 
 export type ApplicationOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type ApplicationCandidateIdVacancyIdCompoundUniqueInput = {
+  candidateId: string
+  vacancyId: string
 }
 
 export type ApplicationCountOrderByAggregateInput = {

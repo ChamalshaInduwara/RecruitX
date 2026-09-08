@@ -10,15 +10,38 @@ import interviewRoutes from "./routes/interview.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
 import documentRoutes from "./routes/document.routes";
 import userRoutes from "./routes/user.routes";
+import {errorHandler,notFoundHandler,} from "./middleware/error.middleware";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(express.json());
-app.use(express.json());
+const frontendUrl =
+  process.env.FRONTEND_URL ||
+  "http://localhost:5173";
+
+app.use(
+  cors({
+    origin: frontendUrl,
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+    ],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
+  })
+);
+app.use(
+  express.json({
+    limit: "1mb",
+  })
+);
 app.use("/api/auth", authRoutes);
 app.use("/api/vacancies", vacancyRoutes);
 app.use("/api/candidates", candidateRoutes);
@@ -53,6 +76,16 @@ app.get("/api/db-health", async (req, res) => {
     });
   }
 });
+
+/*
+|--------------------------------------------------------------------------
+| 404 + Global Errors
+|--------------------------------------------------------------------------
+*/
+
+app.use(notFoundHandler);
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`RecruitX server is running on port ${PORT}`);

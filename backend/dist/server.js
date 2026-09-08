@@ -15,12 +15,29 @@ const interview_routes_1 = __importDefault(require("./routes/interview.routes"))
 const dashboard_routes_1 = __importDefault(require("./routes/dashboard.routes"));
 const document_routes_1 = __importDefault(require("./routes/document.routes"));
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
+const error_middleware_1 = require("./middleware/error.middleware");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
-app.use((0, cors_1.default)());
-app.use(express_1.default.json());
-app.use(express_1.default.json());
+const frontendUrl = process.env.FRONTEND_URL ||
+    "http://localhost:5173";
+app.use((0, cors_1.default)({
+    origin: frontendUrl,
+    methods: [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+    ],
+    allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+    ],
+}));
+app.use(express_1.default.json({
+    limit: "1mb",
+}));
 app.use("/api/auth", auth_routes_1.default);
 app.use("/api/vacancies", vacancy_routes_1.default);
 app.use("/api/candidates", candidate_routes_1.default);
@@ -52,6 +69,13 @@ app.get("/api/db-health", async (req, res) => {
         });
     }
 });
+/*
+|--------------------------------------------------------------------------
+| 404 + Global Errors
+|--------------------------------------------------------------------------
+*/
+app.use(error_middleware_1.notFoundHandler);
+app.use(error_middleware_1.errorHandler);
 app.listen(PORT, () => {
     console.log(`RecruitX server is running on port ${PORT}`);
 });
