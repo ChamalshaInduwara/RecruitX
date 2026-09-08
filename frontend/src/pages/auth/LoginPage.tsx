@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from "react";
 
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams, } from "react-router-dom";
 
 import axios from "axios";
 
@@ -8,6 +8,13 @@ import { useAuth } from "../../context/AuthContext";
 
 function LoginPage() {
   const navigate = useNavigate();
+
+  const [searchParams] =
+  useSearchParams();
+
+const sessionExpired =
+  searchParams.get("reason") ===
+  "session-expired";
 
   const { user, loading: authLoading, login } = useAuth();
 
@@ -86,6 +93,12 @@ function LoginPage() {
             Sign in to continue to RecruitX.
           </p>
         </div>
+
+        {sessionExpired && !error && (
+  <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+    Your session has expired. Please sign in again.
+  </div>
+)}
 
         {error && (
           <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
