@@ -21,16 +21,4 @@ router.post(
 
 router.get("/me", authenticate, getCurrentUser);
 
-router.get(
-  "/admin-test",
-  authenticate,
-  authorizeRoles("ADMIN"),
-  (req, res) => {
-    res.status(200).json({
-      status: "success",
-      message: "Admin access granted",
-    });
-  }
-);
-
 export default router;
