@@ -12,6 +12,55 @@ export type InterviewStatus =
   | "CANCELLED"
   | "RESCHEDULED";
 
+export type CVRecommendation =
+  | "EXCELLENT_MATCH"
+  | "GOOD_MATCH"
+  | "MODERATE_MATCH"
+  | "LOW_MATCH";
+
+export interface CVAnalysis {
+  id: string;
+  applicationId: string;
+
+  overallScore: number;
+  skillsScore: number;
+  experienceScore: number;
+  educationScore: number;
+  semanticScore: number;
+
+  recommendation: CVRecommendation;
+
+  matchedSkills: string[] | null;
+  missingSkills: string[] | null;
+  strengths: string[] | null;
+
+  summary: string | null;
+
+  analyzedAt: string;
+  updatedAt: string;
+}
+
+export interface CVAnalysisDetails {
+  ruleBasedPercentage: number;
+  semanticPercentage: number;
+  semanticModel: string;
+
+  requiredSkills: string[];
+  matchedSkills: string[];
+  missingSkills: string[];
+}
+
+export interface AnalyzeCVResponse {
+  status: "success";
+  message: string;
+
+  analysis: CVAnalysis;
+
+  details: CVAnalysisDetails;
+
+  notice: string;
+}
+
 export interface ApplicationInterview {
   id: string;
   applicationId: string;
@@ -84,14 +133,15 @@ export interface Application {
     status?: string;
   };
 
+  cvAnalysis?: CVAnalysis | null;
+
   _count?: {
     interviews: number;
     statusHistory: number;
   };
 }
 
-export interface ApplicationDetails
-  extends Application {
+export interface ApplicationDetails extends Application {
   candidate: Application["candidate"] & {
     documents?: ApplicationDocument[];
   };

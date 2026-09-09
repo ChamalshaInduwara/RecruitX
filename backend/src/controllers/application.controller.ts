@@ -35,21 +35,11 @@ const updateStatusSchema = z.object({
 const allowedTransitions: Record<string, string[]> = {
   APPLIED: ["SCREENING", "REJECTED"],
 
-  SCREENING: [
-    "INTERVIEW_SCHEDULED",
-    "REJECTED",
-  ],
+  SCREENING: ["INTERVIEW_SCHEDULED", "REJECTED"],
 
-  INTERVIEW_SCHEDULED: [
-    "INTERVIEW_COMPLETED",
-    "REJECTED",
-  ],
+  INTERVIEW_SCHEDULED: ["INTERVIEW_COMPLETED", "REJECTED"],
 
-  INTERVIEW_COMPLETED: [
-  "INTERVIEW_SCHEDULED",
-  "SELECTED",
-  "REJECTED",
-],
+  INTERVIEW_COMPLETED: ["INTERVIEW_SCHEDULED", "SELECTED", "REJECTED"],
 
   SELECTED: [],
   REJECTED: [],
@@ -62,13 +52,9 @@ const allowedTransitions: Record<string, string[]> = {
 | POST /api/applications
 */
 
-export const createApplication = async (
-  req: Request,
-  res: Response
-) => {
+export const createApplication = async (req: Request, res: Response) => {
   try {
-    const validation =
-      createApplicationSchema.safeParse(req.body);
+    const validation = createApplicationSchema.safeParse(req.body);
 
     if (!validation.success) {
       return res.status(400).json({
@@ -78,15 +64,13 @@ export const createApplication = async (
       });
     }
 
-    const { candidateId, vacancyId } =
-      validation.data;
+    const { candidateId, vacancyId } = validation.data;
 
-    const candidate =
-      await prisma.candidate.findUnique({
-        where: {
-          id: candidateId,
-        },
-      });
+    const candidate = await prisma.candidate.findUnique({
+      where: {
+        id: candidateId,
+      },
+    });
 
     if (!candidate) {
       return res.status(404).json({
@@ -95,12 +79,11 @@ export const createApplication = async (
       });
     }
 
-    const vacancy =
-      await prisma.vacancy.findUnique({
-        where: {
-          id: vacancyId,
-        },
-      });
+    const vacancy = await prisma.vacancy.findUnique({
+      where: {
+        id: vacancyId,
+      },
+    });
 
     if (!vacancy) {
       return res.status(404).json({
@@ -112,70 +95,65 @@ export const createApplication = async (
     if (vacancy.status !== "ACTIVE") {
       return res.status(400).json({
         status: "error",
-        message:
-          "Applications can only be created for active vacancies",
+        message: "Applications can only be created for active vacancies",
       });
     }
 
-    const existingApplication =
-      await prisma.application.findFirst({
-        where: {
-          candidateId,
-          vacancyId,
-        },
-      });
+    const existingApplication = await prisma.application.findFirst({
+      where: {
+        candidateId,
+        vacancyId,
+      },
+    });
 
     if (existingApplication) {
       return res.status(409).json({
         status: "error",
-        message:
-          "This candidate already has an application for this vacancy",
+        message: "This candidate already has an application for this vacancy",
       });
     }
 
     const userId = res.locals.auth.userId;
 
-    const application =
-      await prisma.$transaction(async (tx) => {
-        const newApplication =
-          await tx.application.create({
-            data: {
-              candidateId,
-              vacancyId,
-              status: "APPLIED",
+    const application = await prisma.$transaction(async (tx) => {
+      const newApplication = await tx.application.create({
+        data: {
+          candidateId,
+          vacancyId,
+          status: "APPLIED",
+        },
+
+        include: {
+          candidate: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
             },
-
-            include: {
-              candidate: {
-                select: {
-                  id: true,
-                  fullName: true,
-                  email: true,
-                },
-              },
-
-              vacancy: {
-                select: {
-                  id: true,
-                  title: true,
-                  department: true,
-                },
-              },
-            },
-          });
-
-        await tx.statusHistory.create({
-          data: {
-            applicationId: newApplication.id,
-            oldStatus: null,
-            newStatus: "APPLIED",
-            changedBy: userId,
-            note: "Application created",
           },
-        });
 
-        return newApplication;
+          vacancy: {
+            select: {
+              id: true,
+              title: true,
+              department: true,
+            },
+          },
+        },
       });
+
+      await tx.statusHistory.create({
+        data: {
+          applicationId: newApplication.id,
+          oldStatus: null,
+          newStatus: "APPLIED",
+          changedBy: userId,
+          note: "Application created",
+        },
+      });
+
+      return newApplication;
+    });
 
     return res.status(201).json({
       status: "success",
@@ -183,10 +161,7 @@ export const createApplication = async (
       application,
     });
   } catch (error) {
-    console.error(
-      "Create application error:",
-      error
-    );
+    console.error("Create application error:", error);
 
     return res.status(500).json({
       status: "error",
@@ -207,25 +182,16 @@ export const createApplication = async (
 | /api/applications?vacancyId=...
 */
 
-export const getApplications = async (
-  req: Request,
-  res: Response
-) => {
+export const getApplications = async (req: Request, res: Response) => {
   try {
     const status =
-      typeof req.query.status === "string"
-        ? req.query.status
-        : undefined;
+      typeof req.query.status === "string" ? req.query.status : undefined;
 
     const vacancyId =
-      typeof req.query.vacancyId === "string"
-        ? req.query.vacancyId
-        : undefined;
+      typeof req.query.vacancyId === "string" ? req.query.vacancyId : undefined;
 
     const search =
-      typeof req.query.search === "string"
-        ? req.query.search
-        : undefined;
+      typeof req.query.search === "string" ? req.query.search : undefined;
 
     const validStatuses = [
       "APPLIED",
@@ -236,97 +202,93 @@ export const getApplications = async (
       "REJECTED",
     ];
 
-    if (
-      status &&
-      !validStatuses.includes(status)
-    ) {
+    if (status && !validStatuses.includes(status)) {
       return res.status(400).json({
         status: "error",
         message: "Invalid application status",
       });
     }
 
-    const applications =
-      await prisma.application.findMany({
-        where: {
-          ...(status && {
-            status: status as
-              | "APPLIED"
-              | "SCREENING"
-              | "INTERVIEW_SCHEDULED"
-              | "INTERVIEW_COMPLETED"
-              | "SELECTED"
-              | "REJECTED",
-          }),
+    const applications = await prisma.application.findMany({
+      where: {
+        ...(status && {
+          status: status as
+            | "APPLIED"
+            | "SCREENING"
+            | "INTERVIEW_SCHEDULED"
+            | "INTERVIEW_COMPLETED"
+            | "SELECTED"
+            | "REJECTED",
+        }),
 
-          ...(vacancyId && {
-            vacancyId,
-          }),
+        ...(vacancyId && {
+          vacancyId,
+        }),
 
-          ...(search && {
-            OR: [
-              {
-                candidate: {
-                  fullName: {
-                    contains: search,
-                    mode: "insensitive",
-                  },
+        ...(search && {
+          OR: [
+            {
+              candidate: {
+                fullName: {
+                  contains: search,
+                  mode: "insensitive",
                 },
               },
+            },
 
-              {
-                candidate: {
-                  email: {
-                    contains: search,
-                    mode: "insensitive",
-                  },
+            {
+              candidate: {
+                email: {
+                  contains: search,
+                  mode: "insensitive",
                 },
               },
+            },
 
-              {
-                vacancy: {
-                  title: {
-                    contains: search,
-                    mode: "insensitive",
-                  },
+            {
+              vacancy: {
+                title: {
+                  contains: search,
+                  mode: "insensitive",
                 },
               },
-            ],
-          }),
-        },
-
-        include: {
-          candidate: {
-            select: {
-              id: true,
-              fullName: true,
-              email: true,
-              phone: true,
-              skills: true,
             },
-          },
+          ],
+        }),
+      },
 
-          vacancy: {
-            select: {
-              id: true,
-              title: true,
-              department: true,
-              status: true,
-            },
-          },
-
-          _count: {
-            select: {
-              interviews: true,
-              statusHistory: true,
-            },
+      include: {
+        candidate: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            phone: true,
+            skills: true,
           },
         },
 
-        orderBy: {
-          appliedAt: "desc",
+        vacancy: {
+          select: {
+            id: true,
+            title: true,
+            department: true,
+            status: true,
+          },
         },
-      });
+
+        _count: {
+          select: {
+            interviews: true,
+            statusHistory: true,
+          },
+        },
+      },
+
+      orderBy: {
+        appliedAt: "desc",
+      },
+    });
 
     return res.status(200).json({
       status: "success",
@@ -334,10 +296,7 @@ export const getApplications = async (
       applications,
     });
   } catch (error) {
-    console.error(
-      "Get applications error:",
-      error
-    );
+    console.error("Get applications error:", error);
 
     return res.status(500).json({
       status: "error",
@@ -355,59 +314,60 @@ export const getApplications = async (
 
 export const getApplicationById = async (
   req: Request<{ id: string }>,
-  res: Response
+  res: Response,
 ) => {
   try {
     const { id } = req.params;
 
-    const application =
-      await prisma.application.findUnique({
-        where: {
-          id,
-        },
+    const application = await prisma.application.findUnique({
+      where: {
+        id,
+      },
 
-        include: {
-          candidate: {
-            include: {
-              documents: true,
-            },
-          },
-
-          vacancy: true,
-
-          interviews: {
-            include: {
-              interviewer: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                },
-              },
-            },
-
-            orderBy: {
-              dateTime: "desc",
-            },
-          },
-
-          statusHistory: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                },
-              },
-            },
-
-            orderBy: {
-              changedAt: "desc",
-            },
+      include: {
+        candidate: {
+          include: {
+            documents: true,
           },
         },
-      });
+
+        vacancy: true,
+
+        cvAnalysis: true,
+
+        interviews: {
+          include: {
+            interviewer: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+
+          orderBy: {
+            dateTime: "desc",
+          },
+        },
+
+        statusHistory: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+
+          orderBy: {
+            changedAt: "desc",
+          },
+        },
+      },
+    });
 
     if (!application) {
       return res.status(404).json({
@@ -421,10 +381,7 @@ export const getApplicationById = async (
       application,
     });
   } catch (error) {
-    console.error(
-      "Get application error:",
-      error
-    );
+    console.error("Get application error:", error);
 
     return res.status(500).json({
       status: "error",
@@ -442,13 +399,12 @@ export const getApplicationById = async (
 
 export const updateApplicationStatus = async (
   req: Request<{ id: string }>,
-  res: Response
+  res: Response,
 ) => {
   try {
     const { id } = req.params;
 
-    const validation =
-      updateStatusSchema.safeParse(req.body);
+    const validation = updateStatusSchema.safeParse(req.body);
 
     if (!validation.success) {
       return res.status(400).json({
@@ -458,15 +414,13 @@ export const updateApplicationStatus = async (
       });
     }
 
-    const { status, note } =
-      validation.data;
+    const { status, note } = validation.data;
 
-    const existingApplication =
-      await prisma.application.findUnique({
-        where: {
-          id,
-        },
-      });
+    const existingApplication = await prisma.application.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!existingApplication) {
       return res.status(404).json({
@@ -475,20 +429,15 @@ export const updateApplicationStatus = async (
       });
     }
 
-    if (
-      existingApplication.status === status
-    ) {
+    if (existingApplication.status === status) {
       return res.status(400).json({
         status: "error",
-        message:
-          "Application is already in this status",
+        message: "Application is already in this status",
       });
     }
 
     const validNextStatuses =
-      allowedTransitions[
-        existingApplication.status
-      ] || [];
+      allowedTransitions[existingApplication.status] || [];
 
     if (!validNextStatuses.includes(status)) {
       return res.status(400).json({
@@ -500,68 +449,58 @@ export const updateApplicationStatus = async (
 
     const userId = res.locals.auth.userId;
 
-    const updatedApplication =
-      await prisma.$transaction(
-        async (tx) => {
-          const application =
-            await tx.application.update({
-              where: {
-                id,
-              },
+    const updatedApplication = await prisma.$transaction(async (tx) => {
+      const application = await tx.application.update({
+        where: {
+          id,
+        },
 
-              data: {
-                status,
-              },
+        data: {
+          status,
+        },
 
-              include: {
-                candidate: {
-                  select: {
-                    id: true,
-                    fullName: true,
-                    email: true,
-                  },
-                },
-
-                vacancy: {
-                  select: {
-                    id: true,
-                    title: true,
-                  },
-                },
-              },
-            });
-
-          await tx.statusHistory.create({
-            data: {
-              applicationId: id,
-              oldStatus:
-                existingApplication.status,
-              newStatus: status,
-              changedBy: userId,
-              note,
+        include: {
+          candidate: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
             },
-          });
+          },
 
-          return application;
-        }
-      );
+          vacancy: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+      });
+
+      await tx.statusHistory.create({
+        data: {
+          applicationId: id,
+          oldStatus: existingApplication.status,
+          newStatus: status,
+          changedBy: userId,
+          note,
+        },
+      });
+
+      return application;
+    });
 
     return res.status(200).json({
       status: "success",
-      message:
-        "Application status updated successfully",
+      message: "Application status updated successfully",
       application: updatedApplication,
     });
   } catch (error) {
-    console.error(
-      "Update application status error:",
-      error
-    );
+    console.error("Update application status error:", error);
 
     return res.status(500).json({
       status: "error",
-      message:
-        "Unable to update application status",
+      message: "Unable to update application status",
     });
   }
 };

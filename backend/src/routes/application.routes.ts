@@ -16,6 +16,10 @@ import {
   scheduleInterview,
 } from "../controllers/interview.controller";
 
+import {
+  analyzeCv,
+} from "../controllers/cvAnalysis.controller";
+
 const router = Router();
 
 router.get(
@@ -51,6 +55,16 @@ router.patch(
   authenticate,
   authorizeRoles("ADMIN", "RECRUITER"),
   updateApplicationStatus
+);
+
+router.post(
+  "/:id/analyze-cv",
+  authenticate,
+  authorizeRoles(
+    "ADMIN",
+    "RECRUITER"
+  ),
+  analyzeCv
 );
 
 export default router;
