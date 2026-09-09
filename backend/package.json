@@ -11,7 +11,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "create-admin": "tsx src/scripts/createAdmin.ts",
-    "reset-admin-password": "tsx src/scripts/resetAdminPassword.ts"
+    "reset-admin-password": "tsx src/scripts/resetAdminPassword.ts",
+    "test-cv-extraction": "tsx src/scripts/testCvExtraction.ts"
   },
   "keywords": [
     "recruitx",
@@ -33,6 +34,8 @@
     "express-rate-limit": "^8.7.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.3.0",
+    "pdf-parse": "^2.4.5",
+    "word-extractor": "^1.0.4",
     "zod": "^4.5.4"
   },
   "devDependencies": {
@@ -42,6 +45,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.2.0",
     "@types/node": "^26.4.0",
+    "@types/word-extractor": "^1.0.6",
     "prisma": "^7.10.0",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2"
