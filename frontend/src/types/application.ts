@@ -151,10 +151,18 @@ export interface ApplicationDetails extends Application {
   statusHistory: StatusHistoryItem[];
 }
 
+export interface ApplicationListItem extends Omit<Application, "cvAnalysis"> {
+  cvAnalysis?: {
+    overallScore: number;
+    recommendation: CVRecommendation;
+    analyzedAt: string;
+  } | null;
+}
+
 export interface ApplicationsResponse {
   status: "success";
   count: number;
-  applications: Application[];
+  applications: ApplicationListItem[];
 }
 
 export interface ApplicationResponse {

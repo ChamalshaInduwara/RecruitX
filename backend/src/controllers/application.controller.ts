@@ -277,6 +277,14 @@ export const getApplications = async (req: Request, res: Response) => {
           },
         },
 
+        cvAnalysis: {
+          select: {
+            overallScore: true,
+            recommendation: true,
+            analyzedAt: true,
+          },
+        },
+
         _count: {
           select: {
             interviews: true,
