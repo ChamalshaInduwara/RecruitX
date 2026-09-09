@@ -12,7 +12,9 @@
     "start": "node dist/server.js",
     "create-admin": "tsx src/scripts/createAdmin.ts",
     "reset-admin-password": "tsx src/scripts/resetAdminPassword.ts",
-    "test-cv-extraction": "tsx src/scripts/testCvExtraction.ts"
+    "test-cv-extraction": "tsx src/scripts/testCvExtraction.ts",
+    "test-local-semantic": "tsx src/scripts/testLocalSemanticMatch.ts",
+    "test-cv-analysis": "tsx src/scripts/testCvAnalysis.ts"
   },
   "keywords": [
     "recruitx",
@@ -24,6 +26,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
     "@prisma/adapter-neon": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "@supabase/supabase-js": "^2.116.0",

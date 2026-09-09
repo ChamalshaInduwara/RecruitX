@@ -365,6 +365,7 @@ const calculateExperienceScore = (
 
 export const calculateApplicationCvMatch = async (
   applicationId: string,
+  structuredCvInput?: StructuredCv,
 ): Promise<CvMatchResult> => {
   /*
     |--------------------------------------------------------------------------
@@ -392,9 +393,9 @@ export const calculateApplicationCvMatch = async (
     |--------------------------------------------------------------------------
     */
 
-  const extractedCv = await extractCvTextForApplication(applicationId);
-
-  const structuredCv = structureCvText(extractedCv.text);
+  const structuredCv =
+    structuredCvInput ??
+    structureCvText((await extractCvTextForApplication(applicationId)).text);
 
   /*
     |--------------------------------------------------------------------------
