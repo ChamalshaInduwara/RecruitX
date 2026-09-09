@@ -2,13 +2,16 @@ import axios from "axios";
 
 import {
   ArrowLeft,
+  Brain,
   BriefcaseBusiness,
   CalendarDays,
   CheckCircle2,
   Clock3,
+  Loader2,
   Mail,
   MapPin,
   Phone,
+  Sparkles,
   UserRound,
   X,
   XCircle,
@@ -24,7 +27,11 @@ import type {
   ApplicationDetails,
   ApplicationResponse,
   ApplicationStatus,
+  CVAnalysis,
+  CVAnalysisDetails,
 } from "../../types/application";
+
+import { analyzeApplicationCV } from "../../services/application.service";
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +79,15 @@ function ApplicationDetailsPage() {
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState("");
+
+  const [cvAnalysis, setCvAnalysis] = useState<CVAnalysis | null>(null);
+
+  const [cvAnalysisDetails, setCvAnalysisDetails] =
+    useState<CVAnalysisDetails | null>(null);
+
+  const [analyzingCV, setAnalyzingCV] = useState(false);
+
+  const [cvAnalysisError, setCvAnalysisError] = useState("");
 
   /*
   |--------------------------------------------------------------------------
@@ -157,6 +173,47 @@ function ApplicationDetailsPage() {
   useEffect(() => {
     loadApplication();
   }, [id]);
+
+  const handleAnalyzeCV = async () => {
+    if (!application?.id) {
+      return;
+    }
+
+    try {
+      setAnalyzingCV(true);
+      setCvAnalysisError("");
+
+      const response = await analyzeApplicationCV(application.id);
+
+      setCvAnalysis(response.analysis);
+      setCvAnalysisDetails(response.details);
+    } catch (error) {
+      console.error("CV analysis failed:", error);
+
+      setCvAnalysisError(
+        axios.isAxiosError(error)
+          ? error.response?.data?.message || "Unable to analyze CV"
+          : "Unable to analyze CV",
+      );
+    } finally {
+      setAnalyzingCV(false);
+    }
+  };
+
+  const getRecommendationLabel = (recommendation: string) => {
+    switch (recommendation) {
+      case "EXCELLENT_MATCH":
+        return "Excellent Match";
+      case "GOOD_MATCH":
+        return "Good Match";
+      case "MODERATE_MATCH":
+        return "Moderate Match";
+      case "LOW_MATCH":
+        return "Low Match";
+      default:
+        return recommendation;
+    }
+  };
 
   /*
   |--------------------------------------------------------------------------
@@ -351,6 +408,8 @@ function ApplicationDetailsPage() {
   const canScheduleInterview =
     application.status === "SCREENING" ||
     application.status === "INTERVIEW_COMPLETED";
+
+  const displayedAnalysis = cvAnalysis ?? application.cvAnalysis ?? null;
 
   return (
     <div className="space-y-6">
@@ -637,6 +696,262 @@ function ApplicationDetailsPage() {
           </div>
         </section>
       </div>
+
+      {/* AI CV Analysis */}
+
+      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-indigo-600" />
+
+              <h2 className="text-lg font-semibold text-slate-900">
+                AI CV Analysis
+              </h2>
+            </div>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Job-relevant CV matching using skills, qualifications and local
+              semantic analysis.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleAnalyzeCV}
+            disabled={analyzingCV}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {analyzingCV ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : displayedAnalysis ? (
+              <>
+                <Sparkles className="h-4 w-4" />
+                Re-analyze CV
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" />
+                Analyze CV
+              </>
+            )}
+          </button>
+        </div>
+
+        {cvAnalysisError && (
+          <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {cvAnalysisError}
+          </div>
+        )}
+
+        {displayedAnalysis ? (
+          <div className="space-y-6">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">
+                    Overall Match Score
+                  </p>
+
+                  <div className="mt-1 flex items-end gap-2">
+                    <span className="text-4xl font-bold text-slate-900">
+                      {Math.round(displayedAnalysis.overallScore)}%
+                    </span>
+
+                    <span className="pb-1 text-sm text-slate-500">
+                      decision-support score
+                    </span>
+                  </div>
+                </div>
+
+                <div className="rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700">
+                  {getRecommendationLabel(displayedAnalysis.recommendation)}
+                </div>
+              </div>
+
+              <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className="h-full rounded-full bg-indigo-600 transition-all"
+                  style={{
+                    width: `${Math.min(Math.max(displayedAnalysis.overallScore, 0), 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="mb-3 text-sm font-semibold text-slate-900">
+                Score Breakdown
+              </h3>
+
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  ["Skills", displayedAnalysis.skillsScore, 40],
+                  ["Experience", displayedAnalysis.experienceScore, 25],
+                  ["Education", displayedAnalysis.educationScore, 15],
+                  ["Semantic", displayedAnalysis.semanticScore, 20],
+                ].map(([label, score, maximum]) => (
+                  <div
+                    key={label}
+                    className="rounded-lg border border-slate-200 p-4"
+                  >
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      {label}
+                    </p>
+
+                    <p className="mt-1 text-xl font-semibold text-slate-900">
+                      {score}/{maximum}
+                    </p>
+
+                    {label === "Semantic" && (
+                      <p className="mt-1 text-xs text-slate-500">
+                        {Math.round(displayedAnalysis.semanticScore * 5)}%
+                        relevance
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-5 lg:grid-cols-2">
+              {[
+                {
+                  title: "Matched Skills",
+                  skills: displayedAnalysis.matchedSkills,
+                  icon: CheckCircle2,
+                  containerClass: "border-emerald-200 bg-emerald-50/50",
+                  headingClass: "text-emerald-900",
+                  iconClass: "text-emerald-600",
+                  tagClass: "border-emerald-200 text-emerald-700",
+                  empty: "No explicit matched skills identified.",
+                },
+                {
+                  title: "Missing Skills",
+                  skills: displayedAnalysis.missingSkills,
+                  icon: XCircle,
+                  containerClass: "border-amber-200 bg-amber-50/50",
+                  headingClass: "text-amber-900",
+                  iconClass: "text-amber-600",
+                  tagClass: "border-amber-200 text-amber-700",
+                  empty: "All explicitly listed skills were matched.",
+                },
+              ].map((skillGroup) => {
+                const SkillIcon = skillGroup.icon;
+
+                return (
+                  <div
+                    key={skillGroup.title}
+                    className={`rounded-lg border p-4 ${skillGroup.containerClass}`}
+                  >
+                    <div className="mb-3 flex items-center gap-2">
+                      <SkillIcon
+                        className={`h-4 w-4 ${skillGroup.iconClass}`}
+                      />
+
+                      <h3
+                        className={`text-sm font-semibold ${skillGroup.headingClass}`}
+                      >
+                        {skillGroup.title}
+                      </h3>
+                    </div>
+
+                    {skillGroup.skills && skillGroup.skills.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {skillGroup.skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className={`rounded-full border bg-white px-3 py-1 text-xs font-medium ${skillGroup.tagClass}`}
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-slate-500">
+                        {skillGroup.empty}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {displayedAnalysis.strengths &&
+              displayedAnalysis.strengths.length > 0 && (
+                <div>
+                  <h3 className="mb-3 text-sm font-semibold text-slate-900">
+                    Analysis Highlights
+                  </h3>
+
+                  <div className="space-y-2">
+                    {displayedAnalysis.strengths.map((strength, index) => (
+                      <div
+                        key={`${strength}-${index}`}
+                        className="flex items-start gap-2 text-sm text-slate-700"
+                      >
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
+                        <span>{strength}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            {displayedAnalysis.summary && (
+              <div className="rounded-lg border border-slate-200 p-4">
+                <h3 className="mb-2 text-sm font-semibold text-slate-900">
+                  Summary
+                </h3>
+
+                <p className="text-sm leading-6 text-slate-600">
+                  {displayedAnalysis.summary}
+                </p>
+              </div>
+            )}
+
+            {cvAnalysisDetails && (
+              <div className="rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
+                <div className="flex flex-wrap gap-x-6 gap-y-2">
+                  <span>
+                    Rule-based relevance:{" "}
+                    <strong>{cvAnalysisDetails.ruleBasedPercentage}%</strong>
+                  </span>
+
+                  <span>
+                    Semantic relevance:{" "}
+                    <strong>{cvAnalysisDetails.semanticPercentage}%</strong>
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+              <p className="text-xs leading-5 text-blue-700">
+                AI-assisted analysis is provided for recruiter decision support.
+                It evaluates job-related qualifications and should not be used
+                as the sole basis for selecting or rejecting a candidate.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-slate-300 px-6 py-10 text-center">
+            <Brain className="mx-auto h-9 w-9 text-slate-400" />
+
+            <h3 className="mt-3 font-medium text-slate-900">
+              No CV analysis yet
+            </h3>
+
+            <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">
+              Run an analysis to compare the candidate&apos;s job-related
+              qualifications with this vacancy.
+            </p>
+          </div>
+        )}
+      </section>
 
       {/* Interviews */}
 
