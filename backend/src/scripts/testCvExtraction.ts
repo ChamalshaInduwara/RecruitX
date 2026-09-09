@@ -53,21 +53,6 @@ const run = async () => {
         result.wordCount,
     });
 
-    console.log(
-      "\n--- CV TEXT PREVIEW ---\n"
-    );
-
-    console.log(
-      result.text.slice(
-        0,
-        1000
-      )
-    );
-
-    console.log(
-      "\n--- END PREVIEW ---\n"
-    );
-
     const structured =
   structureCvText(
     result.text
