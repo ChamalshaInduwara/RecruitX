@@ -15,7 +15,7 @@ import {errorHandler,notFoundHandler,} from "./middleware/error.middleware";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
 const frontendUrl =
   process.env.FRONTEND_URL ||
@@ -87,6 +87,12 @@ app.use(notFoundHandler);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`RecruitX server is running on port ${PORT}`);
-});
+app.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
+    console.log(
+      `RecruitX server is running on port ${PORT}`
+    );
+  }
+);
