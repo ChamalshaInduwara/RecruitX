@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from "react";
 
-import { Navigate, useNavigate, useSearchParams, } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 
 import axios from "axios";
 
@@ -9,12 +9,9 @@ import { useAuth } from "../../context/AuthContext";
 function LoginPage() {
   const navigate = useNavigate();
 
-  const [searchParams] =
-  useSearchParams();
+  const [searchParams] = useSearchParams();
 
-const sessionExpired =
-  searchParams.get("reason") ===
-  "session-expired";
+  const sessionExpired = searchParams.get("reason") === "session-expired";
 
   const { user, loading: authLoading, login } = useAuth();
 
@@ -77,6 +74,12 @@ const sessionExpired =
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-lg sm:p-8">
         <div className="mb-8 text-center">
+          <img
+            src="/logo.png"
+            alt="RecruitX logo"
+            className="mx-auto mb-2 h-20 w-20 object-contain"
+          />
+
           <div className="mb-3 text-3xl font-bold text-slate-900">RecruitX</div>
 
           <p className="text-sm text-slate-500">
@@ -95,10 +98,10 @@ const sessionExpired =
         </div>
 
         {sessionExpired && !error && (
-  <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-    Your session has expired. Please sign in again.
-  </div>
-)}
+          <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+            Your session has expired. Please sign in again.
+          </div>
+        )}
 
         {error && (
           <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
